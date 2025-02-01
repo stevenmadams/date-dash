@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { db } from "../utils/firebaseConfig";
+import { auth, db } from "../utils/firebaseConfig";
 import { doc, getDoc, collection, query, where, getDocs, orderBy } from "firebase/firestore";
-import { magic } from "../utils/magic";
 
 export const useHostEvents = () => {
   const [user, setUser] = useState<any>(null);
@@ -11,7 +10,7 @@ export const useHostEvents = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const metadata = await magic.user.getMetadata();
+        const metadata = await user.user.getMetadata();
         let userId = metadata.publicAddress || (metadata.email ? metadata.email.replace(/[@.]/g, "_") : null);
         if (!userId) throw new Error("User ID is invalid");
 

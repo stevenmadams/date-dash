@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { db } from "../utils/firebaseConfig";
+import { auth, db } from "../utils/firebaseConfig";
 import { doc, getDoc, collection, query, where, getDocs, orderBy } from "firebase/firestore";
-import { magic } from "../utils/magic";
 
 export const useParticipantEvents = () => {
   const [user, setUser] = useState<any>(null);
@@ -11,8 +10,8 @@ export const useParticipantEvents = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const metadata = await magic.user.getMetadata();
-        let userId = metadata.publicAddress || (metadata.email ? metadata.email.replace(/[@.]/g, "_") : null);
+        const metadata = await auth.currentUser?.getIdTokenResult();
+        let userId = auth.currentUser?.email ? auth.currentUser.email.replace(/[@.]/g, "_") : null;
         if (!userId) throw new Error("User ID is invalid");
 
         const userRef = doc(db, "users", userId);

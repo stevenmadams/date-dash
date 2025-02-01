@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useHistory } from "react-router-dom";
-import { db } from "../utils/firebaseConfig";
+import { auth, db } from "../utils/firebaseConfig";
 import { doc, onSnapshot, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
-import { magic } from "../utils/magic";
 import { IonButton, IonInput, IonItem, IonLabel, IonList } from "@ionic/react";
 
 export const EventDetails: React.FC = () => {
@@ -17,8 +16,11 @@ export const EventDetails: React.FC = () => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            const metadata = await magic.user.getMetadata();
-            let userId = metadata.publicAddress || (metadata.email ? metadata.email.replace(/[@.]/g, "_") : null);
+            if (!auth.currentUser) {
+                throw new Error("User is not authenticated");
+            }
+            const email = auth.currentUser.email;
+            let userId = email ? email.replace(/[@.]/g, "_") : null;
             if (!userId) throw new Error("User ID is invalid");
 
             const userRef = doc(db, "users", userId);

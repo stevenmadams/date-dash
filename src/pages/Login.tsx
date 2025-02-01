@@ -1,59 +1,106 @@
-import React, { useState } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
-import { magic } from "../utils/magic";
-import { db } from "../utils/firebaseConfig";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  IonPage,
+  IonContent,
+  IonInput,
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonText,
+} from "@ionic/react";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../utils/firebaseConfig";
 
-export const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
+const Login: React.FC = () => {
   const history = useHistory();
 
-  const handleLogin = async () => {
+  // Validation schema
+  const validationSchema = Yup.object().shape({
+    email: Yup.string()
+      .required("Invalid email.")
+      .email("Invalid email."),
+    password: Yup.string()
+      .required("Invalid password."),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
+
+  const onSubmit = async (data: any) => {
     try {
-      const didToken = await magic.auth.loginWithMagicLink({ email });
-
-      if (didToken) {
-        const metadata = await magic.user.getMetadata();
-
-        // Ensure userId is always a valid string
-        let userId = metadata.publicAddress || metadata.email;
-        if (!userId) throw new Error("No valid user ID found"); // Prevent null values
-
-        // Replace problematic characters if using email
-        userId = userId.replace(/[@.]/g, "_");
-
-        // Create Firestore reference
-        const userRef = doc(db, "users", userId);
-        const userSnap = await getDoc(userRef);
-      
-        if (!userSnap.exists()) {
-          await setDoc(userRef, {
-            email: metadata.email,
-            role: null, // User selects role later
-            createdAt: new Date(),
-          });
-
-          history.push("/choose-role");
-        } else {
-          const userRole = userSnap.data()?.role;
-          history.push(userRole === "host" ? "/host" : "/participant");
-        }
-      }
-    } catch (error) {
-      console.error("Login failed", error);
+      const { email, password } = data;
+      await signInWithEmailAndPassword(auth, email, password);
+      history.push("/dashboard");
+    } catch (error: any) {
+      setError("email", { type: "manual", message: "Incorrect email or password." });
+      setError("password", { type: "manual", message: "Incorrect email or password." });
     }
   };
-  
+
   return (
-    <div>
-      <h1>Login</h1>
-      <input
-        type="email"
-        placeholder="Enter your email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <button onClick={handleLogin}>Login</button>
-    </div>
+    <IonPage style={{ backgroundColor: "#ffffff", height: "100vh" }}>
+      <IonContent
+        className="ion-padding"
+        fullscreen
+        style={{
+          "--background": "#ffffff",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <IonCard style={{ width: "90%", maxWidth: "400px", textAlign: "center" }}>
+            <IonCardHeader>
+              <IonCardTitle>Login</IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <IonInput type="email" placeholder="Email" {...field} />
+                )}
+              />
+              {errors.email && <IonText color="danger">{errors.email.message}</IonText>}
+
+              <Controller
+                name="password"
+                control={control}
+                render={({ field }) => (
+                  <IonInput type="password" placeholder="Password" {...field} />
+                )}
+              />
+              {errors.password && <IonText color="danger">{errors.password.message}</IonText>}
+
+              <IonButton expand="full" onClick={handleSubmit(onSubmit)}>
+                Login
+              </IonButton>
+              <IonText>
+                <p style={{ marginTop: "10px" }}>
+                  Don't have an account? <span style={{ color: "blue", cursor: "pointer" }} onClick={() => history.push("/register")}>
+                    Create an account.
+                  </span>
+                </p>
+              </IonText>
+            </IonCardContent>
+          </IonCard>
+        </div>
+      </IonContent>
+    </IonPage>
   );
 };
+
+export default Login;
