@@ -1,6 +1,6 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, IonBackButton, IonButtons } from '@ionic/react';
 import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
@@ -10,7 +10,7 @@ const CreateHostAccount: React.FC = () => {
     const [hostName, setHostName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,7 +29,7 @@ const CreateHostAccount: React.FC = () => {
                 role: 'host'
             });
 
-            history.push('/CreateAccountOptions');
+            navigate('/CreateAccountOptions');
         } catch (error) {
             console.error('Error creating user:', error);
         }

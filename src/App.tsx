@@ -1,8 +1,6 @@
-// App.tsx
 import React, { useEffect, useState } from "react";
-import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
-import { IonReactRouter } from "@ionic/react-router";
-import { Route, Redirect } from "react-router-dom";
+import { IonApp, setupIonicReact } from "@ionic/react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./utils/firebaseConfig";
 
@@ -28,37 +26,41 @@ const App: React.FC = () => {
       setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
   if (loading) {
-    // Optionally, render a loading indicator
     return <div>Loading...</div>;
   }
 
   return (
-    <IonApp>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <Route exact path="/login" component={Login} />
-          <Route exact path="/register" component={Register} />
-          {isAuthenticated ? (
-            <>
-              <Route exact path="/participant" component={ParticipantDashboard} />
-              <Route exact path="/host" component={HostDashboard} />
-              <Route exact path="/event/:eventId" component={EventDetails} />
-              <Route exact path="/createaccountoptions" component={CreateAccountOptions} />
-              <Route exact path="/createhostaccount" component={CreateHostAccount} />
-              <Route exact path="/createparticipantaccount" component={CreateParticipantAccount} />
-              <Redirect exact from="/" to="/login" />
-            </>
-          ) : (
-            <Redirect to="/login" />
-          )}
-        </IonRouterOutlet>
-      </IonReactRouter>
-    </IonApp>
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected Routes */}
+        {isAuthenticated ? (
+          <>
+            <Route path="/participant" element={<ParticipantDashboard />} />
+            <Route path="/host" element={<HostDashboard />} />
+            <Route path="/event/:eventId" element={<EventDetails />} />
+            <Route path="/createaccountoptions" element={<CreateAccountOptions />} />
+            <Route path="/createhostaccount" element={<CreateHostAccount />} />
+            <Route path="/createparticipantaccount" element={<CreateParticipantAccount />} />
+
+            {/* Default Authenticated Redirect */}
+            <Route path="*" element={<Navigate to="/participant" />} />
+          </>
+        ) : (
+          <>
+            {/* Default Unauthenticated Redirect */}
+            <Route path="*" element={<Navigate to="/login" />} />
+          </>
+        )}
+      </Routes>
+    </Router>
   );
 };
 

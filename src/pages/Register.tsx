@@ -1,5 +1,5 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
     IonPage,
     IonContent,
@@ -17,7 +17,7 @@ import { auth, db } from "../utils/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 
 const Register: React.FC = () => {
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const {
         control,
@@ -63,7 +63,7 @@ const Register: React.FC = () => {
             document.body.focus();
 
             setTimeout(() => {
-                history.push("/CreateAccountOptions");
+                navigate("/createaccountoptions");
             }, 100); // 100ms delay
             
         } catch (error: any) {
@@ -118,10 +118,10 @@ const Register: React.FC = () => {
 
                             <IonText>
                                 <p style={{ marginTop: "10px" }}>
-                                    By registering, you agree to our <span style={{ color: "blue", cursor: "pointer" }} onClick={() => history.push("/terms")}>Terms of Service</span>.
+                                    By registering, you agree to our <span style={{ color: "blue", cursor: "pointer" }} onClick={() => navigate("/terms")}>Terms of Service</span>.
                                 </p>
                                 <p style={{ marginTop: "10px" }}>
-                                    Already have an account? <span style={{ color: "blue", cursor: "pointer" }} onClick={() => history.push("/login")}>Login here.</span>
+                                    Already have an account? <span style={{ color: "blue", cursor: "pointer" }} onClick={() => navigate("/login")}>Login here.</span>
                                 </p>
                             </IonText>
                         </IonCardContent>

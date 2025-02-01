@@ -1,5 +1,5 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   IonPage,
   IonContent,
@@ -18,7 +18,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../utils/firebaseConfig";
 
 const Login: React.FC = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // Validation schema
   const validationSchema = Yup.object().shape({
@@ -42,7 +42,7 @@ const Login: React.FC = () => {
     try {
       const { email, password } = data;
       await signInWithEmailAndPassword(auth, email, password);
-      history.push("/dashboard");
+      navigate("/dashboard");
     } catch (error: any) {
       setError("email", { type: "manual", message: "Incorrect email or password." });
       setError("password", { type: "manual", message: "Incorrect email or password." });
@@ -90,7 +90,7 @@ const Login: React.FC = () => {
               </IonButton>
               <IonText>
                 <p style={{ marginTop: "10px" }}>
-                  Don't have an account? <span style={{ color: "blue", cursor: "pointer" }} onClick={() => history.push("/register")}>
+                  Don't have an account? <span style={{ color: "blue", cursor: "pointer" }} onClick={() => navigate("/register")}>
                     Create an account.
                   </span>
                 </p>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { auth, db } from "../utils/firebaseConfig";
 import { doc, onSnapshot, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { IonButton, IonInput, IonItem, IonLabel, IonList } from "@ionic/react";
@@ -12,7 +12,7 @@ export const EventDetails: React.FC = () => {
     const [newEventName, setNewEventName] = useState("");
     const [newEventDate, setNewEventDate] = useState("");
     const [user, setUser] = useState<any>(null);
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -35,12 +35,21 @@ export const EventDetails: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const eventRef = doc(db, "events", eventId);
+        if (!eventId) {
+            console.error("Event ID is undefined");
+            return;
+        }
+        if (!eventId) {
+            console.error("Event ID is undefined");
+            return;
+        }
+        const eventRef = eventId ? doc(db, "events", eventId) : null;
+        if (!eventRef) return;
 
         const unsubscribe = onSnapshot(eventRef, (eventSnap) => {
             if (!eventSnap.exists()) {
                 alert("Event not found!");
-                history.push("/");
+                navigate("/");
                 return;
             }
 
@@ -63,6 +72,10 @@ export const EventDetails: React.FC = () => {
         if (!event) return;
 
         try {
+            if (!eventId) {
+                console.error("Event ID is undefined");
+                return;
+            }
             const eventRef = doc(db, "events", eventId);
             await updateDoc(eventRef, {
                 eventName: newEventName || event.eventName,
@@ -80,6 +93,10 @@ export const EventDetails: React.FC = () => {
         if (!event) return;
 
         try {
+            if (!eventId) {
+                console.error("Event ID is undefined");
+                return;
+            }
             const eventRef = doc(db, "events", eventId);
             const updatedParticipants = event.participants.filter((id: string) => id !== userId);
             await updateDoc(eventRef, { participants: updatedParticipants });
@@ -97,10 +114,14 @@ export const EventDetails: React.FC = () => {
         if (!confirmDelete) return;
 
         try {
+            if (!eventId) {
+                console.error("Event ID is undefined");
+                return;
+            }
             const eventRef = doc(db, "events", eventId);
             await deleteDoc(eventRef);
             alert("Event has been canceled!");
-            history.push("/host");
+            navigate("/host");
         } catch (error) {
             console.error("Error canceling event:", error);
         }

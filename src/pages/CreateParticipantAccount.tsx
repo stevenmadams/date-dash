@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { IonButton, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonPage, IonContent, IonHeader, IonToolbar, IonTitle } from '@ionic/react';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
@@ -8,7 +8,7 @@ const CreateParticipantAccount: React.FC = () => {
     const [lastName, setLastName] = useState('');
     const [gender, setGender] = useState('');
     const [age, setAge] = useState('');
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleSubmit = async () => {
         if (firstName && lastName && gender && age) {
@@ -22,7 +22,7 @@ const CreateParticipantAccount: React.FC = () => {
                     age,
                     role: 'participant'
                 });
-                history.push('/CreateAccountOptions');
+                navigate('/CreateAccountOptions');
             } catch (error) {
                 console.error('Error adding document: ', error);
             }
@@ -59,7 +59,7 @@ const CreateParticipantAccount: React.FC = () => {
                     <IonInput type="number" value={age} onIonChange={e => setAge(e.detail.value!)} />
                 </IonItem>
                 <IonButton expand="full" onClick={handleSubmit}>Submit</IonButton>
-                <IonButton expand="full" color="light" onClick={() => history.push('/CreateAccountOptions')}>Back</IonButton>
+                <IonButton expand="full" color="light" onClick={() => navigate('/CreateAccountOptions')}>Back</IonButton>
             </IonContent>
         </IonPage>
     );
